@@ -1,0 +1,347 @@
+-- 과제 1번
+select ename as "사원의이름", sal as "급여", sal+300 as "인상된급여"
+from emp;
+-- 과제 2번
+select ename, sal, sal*12+nvl(comm,100)
+from emp
+order by sal asc;
+
+--3번
+select ename, sal
+from emp
+where sal>2000
+order by sal asc;
+
+--4번!
+select ename, empno
+from emp
+where empno = 7788;
+
+--5번
+select ename, sal
+from emp
+where sal not between 2000 and 3000;
+
+--6번
+select ename, job, hiredate
+from emp
+where hiredate between '81/02/20' and '81/05/01';
+
+--7번
+select ename, deptno
+from emp
+where deptno between 20 and 30
+order by ename desc;  
+
+--8번
+select ename, sal, deptno
+from emp
+where (sal > 2000 and sal < 3000) and (deptno=20 or deptno=30)
+order by ename asc;
+
+--9번
+select ename, hiredate
+from emp
+where hiredate like '81/%/%';
+
+--10번
+select ename, job
+from emp
+where mgr is null;
+
+--11번 
+select ename, sal, comm
+from emp
+where comm is not null and comm>0
+order by comm desc;
+
+--12번
+select ename
+from emp
+where ename like '__R%';
+
+--13번
+select ename as 이름
+from emp
+where ename like '%A%E%' or ename like '%E%A%' 
+;
+--14
+select ename as 이름, job as 담당업무, sal as 급여
+from emp
+where job in ('CLERK','SALESMAN') and not (sal in (1600,950,1300))
+;
+
+--15
+select ename as 이름, sal as 급여, comm as 커미션
+from emp
+where comm is not null and comm>500
+; 
+
+--1 마당서점의고객이요구하는다음질문에대해SQL 문을작성하시오.
+--(1) 도서번호가1인도서의이름
+--(2) 가격이20,000원이상인도서의이름
+--(3) 박지성의총구매액(박지성의고객번호는1번으로놓고작성)
+--(4) 박지성이구매한도서의수(박지성의고객번호는1번으로놓고작성)
+
+--2 마당서점의운영자와경영자가요구하는다음질문에대해SQL 문을작성하시오.
+--(1) 마당서점도서의총개수
+--(2) 마당서점에도서를출고하는출판사의총개수
+--(3) 모든고객의이름, 주소
+--(4) 2014년7월4일~7월7일사이에주문받은도서의주문번호
+--(5) 2014년7월4일~7월7일사이에주문받은도서를제외한도서의주문번호
+--(6) 성이‘김’씨인고객의이름과주소
+--(7) 성이‘김’씨이고이름이‘아’로끝나는고객의이름과주소
+--1
+select bookname
+from Book
+where bookid = 1;
+--where bookname like '축구%';
+
+--2
+select bookname 
+from book
+where price >= 20000;
+--3
+select sum(saleprice)
+from orders
+where custid =1;
+
+select sum(saleprice) as "총 구매액", count(*) as "총 구매횟수"
+from orders, customer
+where orders.custid = customer.custid
+        and name ='박지성'
+;
+
+--4
+select count(*)
+from orders
+where custid=1;
+
+--2.1
+select sum(bookid)
+from book;
+
+--2.2
+select count(DISTINCT publisher)
+from book;
+
+--2.3
+select name,address
+from Customer;
+
+--2.4
+select bookid, orderdate
+from Orders
+where orderdate between '2014/07/04' and '2014/07/07';
+
+--2.5
+select bookid, orderdate
+from Orders
+where orderdate not between '2014/07/04' and '2014/07/07';
+
+--2.6
+select name, address
+from Customer
+where name like '김%';
+
+--2.7
+select name, address
+from Customer
+where (name like '김%') and (name like '%아')
+;
+
+--16. SUBSTR 함수를 사용하여 사원들의 입사한 년도와 입사한 달만 출력하시오.
+
+select SUBSTR(hiredate,0,5) as "입사년도,달"
+from emp;
+
+--17. SUBSTR 함수를 사용하여 4월에 입사한 사원을 출력하시오.
+
+select ename from emp where substr(hiredate, '4', '2')='04';
+
+--18. MOD 함수를 사용하여 사원번호가 짝수인 사람만 출력하시오.
+
+select ename
+from emp
+where MOD(EMPNO,2)>0 ;
+
+--19. 입사일을 년도는 2자리(YY), 월은 숫자(MON)로 표시하고 요일은 약어 (DY)로 지정하여 출력하시오.
+
+select TO_CHAR(HIREDATE,'YY/MON/DY')
+from emp;
+
+
+--20. 올해 몇 칠이 지났는지 출력하시오. 현재날짜에서 올해 1월 1일을 뺀 결과를 출력하고 TO_DATE 함수를 사용하여 데이터 형을 일치 시키시오.
+
+select trunc(sysdate-TO_date('2019/01/01','YYYY/MM/DD')) as "지난날"
+from dual;
+
+--21. 사원들의 상관 사번을 출력하되 상관이 없는 사원에 대해서는 NULL 값 대신 0으로 출력하시오.
+
+select nvl(mgr,0)
+from emp;
+
+--22. DECODE 함수로 직급에 따라 급여를 인상하도록 하시오.
+--직급이 ‘ANALIST”인 사원은 200, ‘SALESMAN’인 사원은 180,
+--‘MANAGER’인 사원은 150, ‘CLERK”인 사원은 100을 인상하시오.
+
+select job,
+    DECODE(job,
+        'CLERK',100,
+        'MANAGER',150,
+        'SALESMAN',180,
+        'ANALIST',200
+        )as "급여인상"
+from emp;
+
+--23. 모든 사원의 급여 최고액, 최저액, 총액 및 평균 급여를 출력하시오.
+--평균에 대해서는 정수로 반올림하시오.
+
+select max(sal) as "최고액" ,min(Sal) as "최저액" ,sum(sal) as "총액", round(avg(sal)) as "평균급여"
+from emp;
+
+--24. 각 담당 업무 유형별로 급여 최고액, 최저액,
+--총액 및 평균 액을 출력하시오. 평균에 대해서는 정수로 반올림 하시오.
+
+select job, max(sal) as "최고액" ,min(Sal) as "최저액" ,sum(sal) as "총액", round(avg(sal)) as "평균급여"
+from emp
+group by job;
+
+
+--25. COUNT(*) 함수를 이용하여 담당업무가 동일한 사원 수를 출력하시오.
+
+select job, count(*) as "동일한 사원 수"
+from emp
+group by job;
+
+--26. 관리자 수를 나열하시오.
+
+select count(job) 
+from emp
+where job = 'MANAGER';
+
+--27. 급여 최고액, 급여 최저액의 차액을 출력하시오.
+
+select max(Sal) as "급여 최고액",min(sal) as "급여 최저액" ,max(Sal)-min(sal) as "차액"
+from emp;
+
+--28. 직급별 사원의 최저 급여를 출력하시오.
+--관리자를 알 수 없는 사원의 최저 급여가 2000 미만인
+--그룹은 제외시키고 결과를 급여에 대한 내림차순으로 정렬하여 출력하시오.
+
+select job, min(sal)
+from emp
+group by job
+having min(sal)>2000
+order by min(sal) desc;
+
+--29. 각 부서에 대해 부서번호, 사원 수, 부서 내의
+--모든 사원의 평균 급여를 출력하시오. 평균 급여는 소수점
+--둘째 자리로 반올림 하시오.
+
+select deptno as "부서번호" , count(deptno) as "사원 수", ROUND(avg(sal),2) as "평균급여" 
+from emp
+group by deptno;
+
+--30. 각 부서에 대해 부서번호 이름, 지역 명, 사원 수,
+--부서내의 모든 사원의 평균 급여를 출력하시오.
+--평균 급여는 정수로 반올림 하시오. DECODE 사용.
+
+select deptno as "부서번호" ,
+    decode(deptno,
+    10,'NEW YORK',
+    20,'DALLAS',
+    30,'CHICAGO',
+    40,'BOSTON') as "지역명",
+    count(deptno) as "사원 수", ROUND(avg(sal)) as "평균급여"
+from emp
+group by deptno
+;
+
+--31. 업무를 표시한 다음 해당 업무에 대해
+--부서 번호별 급여 및 부서 10, 20, 30의 급여 총액을 각각 출력하시오.
+--별칭은 각 job, dno, 부서 10, 부서 20, 부서 30, 총액으로 지정하시오. ( hint. Decode, group by )
+
+select job,deptno, decode(deptno,
+    10,sum(sal)) as "부서10",
+        decode(deptno,
+    20,sum(sal)) as "부서20",
+        decode(deptno,
+    30,sum(sal)) as "부서30" , sum(sal) as "총액"
+from emp
+group by deptno,job
+order by deptno
+;
+
+--32. EQUI 조인을 사용하여 SCOTT 사원의 부서번호와 부서 이름을 출력하시오.
+
+select e.ename,e.deptno ,d.dname
+from emp e, dept d
+where e.deptno = d.deptno and e.ename = 'SCOTT';
+
+--33. INNER JOIN과 ON 연산자를 사용하여 사원 이름과 함께 그 사원이 소속된 부서이름과 지역 명을 출력하시오.
+
+select e.ename as "사원이름", d.dname as "부서이름" , d.loc as "지역명"
+from emp e inner join dept d
+on e.deptno = d.deptno;
+
+--36. 조인과 WildCARD를 사용하여 이름에 ‘A’가 포함된 모든 사원의 이름과 부서명을 출력하시오.
+
+select e.ename, d.dname
+from emp e,dept d
+where e.deptno = d.deptno
+and e.ename like '%A%';
+
+
+--37. JOIN을 이용하여 NEW YORK에 근무하는 모든 사원의 이름, 업무, 부서번호 및 부서명을 출력하시오.
+
+SELECT e.ename as "사원", e.job as "업무", e.deptno as "부서번호" ,d.dname as "부서명" 
+from emp e,dept d
+where e.deptno = d.deptno 
+and d.loc = 'NEW YORK';
+
+
+--38. SELF JOIN을 사용하여 사원의 이름 및 사원번호, 관리자 이름을 출력하시오.
+
+select e.ename as "사원", e.empno as "사원번호", em.ename as "사원"
+from emp e , emp em
+where e.mgr = em.empno 
+order by e.empno;
+
+
+
+--39. OUTER JOIN, SELF JOIN을 사용하여 관리자가 없는 사원을 포함하여 사원번호를 기준으로 내림차순 정렬하여 출력하시오.
+
+select e.ename as "사원" , e.empno as "사원번호", em.ename as "관리자"
+from emp e , emp em
+where e.mgr = em.empno(+)
+order by e.empno desc
+;
+
+--40. SELF JOIN을 사용하여 지정한 사원의 이름, 부서번호, 지정한 사원과
+--동일한 부서에서 근무하는 사원을 출력하시오. ( SCOTT )
+
+select em.ename, em.deptno
+from emp e, emp em
+where e.deptno= em.deptno 
+    and e.ename = 'SCOTT';
+
+--41. SELF JOIN을 사용하여 WARD 사원보다 늦게 입사한 사원의 이름과 입사일을 출력하시오.
+
+select e.ename as "입사한 사원", e.hiredate as "입사일"
+from emp e, emp em
+where em.ename = 'WARD'
+and e.hiredate > em.hiredate
+;
+
+--42. SELF JOIN 을 사용하여 관리자보다 먼저 입사한 모든 사원의 이름 및 입사일을
+--관리자의 이름 및 입사일과 함께 출력하시오.
+
+select e.ename as "사원", e.hiredate as "사원입사일", em.ename as "관리자", em.hiredate as "관리자 입사일" 
+from emp e, emp em
+where e.mgr = em.empno
+and e.hiredate < em.hiredate
+order by e.hiredate;
+
+
+
